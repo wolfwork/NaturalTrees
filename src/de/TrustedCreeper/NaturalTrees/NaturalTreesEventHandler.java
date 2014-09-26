@@ -1,0 +1,61 @@
+﻿package de.TrustedCreeper.NaturalTrees;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Item;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.LeavesDecayEvent;
+import org.bukkit.inventory.ItemStack;
+
+
+public class NaturalTreesEventHandler implements Listener {
+
+	
+	private final NaturalTrees plugin;
+
+	public NaturalTreesEventHandler(NaturalTrees plugin) {
+		this.plugin = plugin;
+		plugin.getServer().getPluginManager().registerEvents(this, plugin);
+	}
+	
+	@EventHandler
+	public void onLeavesDecay(LeavesDecayEvent e) {
+		if(e.getBlock() == null) return;
+		if((e.getBlock().getType() == Material.LEAVES) || e.getBlock().getType() == Material.LEAVES_2) {
+			e.setCancelled(true);
+			if(!NaturalTrees.getInstance().getPluginSettings().canDecay()) return;
+			if(TreeManager.canDrop()) {
+				final LeavesType lt = TreeManager.getLeavesType(e.getBlock());
+				final ItemStack saplingItemStack = lt.getSapling();
+				final Item sapling = e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), saplingItemStack);
+				if(TreeManager.canGrow()) {
+					Bukkit.getScheduler().scheduleSyncDelayedTask(NaturalTrees.getInstance(), new Runnable() {
+						
+						@Override
+						public void run() {
+							if(sapling == null) return;
+							if(sapling.isDead()) return;
+							Block under = sapling.getLocation().subtract(0,1,0).getBlock();
+							List<Material> growOn = new ArrayList<Material>(Arrays.asList(Material.DIRT, Material.GRASS));
+							if(growOn.contains(under.getType())) {
+								Block b = sapling.getLocation().getBlock();
+								if((b.getType() == Material.LONG_GRASS) || (b.getType() == Material.AIR)) {
+									b.setType(Material.SAPLING);
+									b.setData((byte) lt.getID());
+									sapling.remove();
+								}
+							}
+						}
+					}, NaturalTrees.getInstance().getPluginSettings().getTimeToFirmlyGrow() * 20);
+				}
+			}
+			e.getBlock().setType(Material.AIR);
+		}
+	}
+}

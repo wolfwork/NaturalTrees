@@ -1,0 +1,9 @@
+﻿name: NaturalTrees
+version: 1.0.0
+main: de.TrustedCreeper.NaturalTrees.NaturalTrees
+author: TrustedCreeper
+website: http://TrustedCreeper.de/
+commands:
+    nt:
+        description: NaturalTrees
+        usage: /<command>
