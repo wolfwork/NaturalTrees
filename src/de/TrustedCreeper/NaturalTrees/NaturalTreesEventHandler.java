@@ -13,6 +13,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+
 
 public class NaturalTreesEventHandler implements Listener {
 
@@ -24,17 +26,44 @@ public class NaturalTreesEventHandler implements Listener {
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	
+	
 	@EventHandler
 	public void onLeavesDecay(LeavesDecayEvent e) {
 		if(e.getBlock() == null) return;
+		if(e.isCancelled()) return;
+		if(NaturalTrees.getInstance().getPluginSettings().isDisabledInWorld(e.getBlock().getWorld().getName())) return;
+		
+		if(NaturalTrees.getInstance().getPluginSettings().existWorldGuard()) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) Bukkit.getPluginManager().getPlugin("WorldGuard");
+			if(wg.getRegionManager(e.getBlock().getWorld()).getApplicableRegions(e.getBlock().getLocation()).size() > 0) {
+				if(NaturalTrees.getInstance().getPluginSettings().isDisabledInRegion()) {
+					return;
+				}
+			}
+		}
 		if((e.getBlock().getType() == Material.LEAVES) || e.getBlock().getType() == Material.LEAVES_2) {
 			e.setCancelled(true);
 			if(!NaturalTrees.getInstance().getPluginSettings().canDecay()) return;
+			final LeavesType lt = TreeManager.getLeavesType(e.getBlock());
+			if(TreeManager.canDropApple()) {
+				if(lt == LeavesType.OAK) {
+					ItemStack apple = new ItemStack(Material.APPLE, 1);
+					e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), apple);
+				}
+			}
 			if(TreeManager.canDrop()) {
-				final LeavesType lt = TreeManager.getLeavesType(e.getBlock());
+				
 				final ItemStack saplingItemStack = lt.getSapling();
-				final Item sapling = e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), saplingItemStack);
+				final Item sapling = e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), saplingItemStack);
 				if(TreeManager.canGrow()) {
+					if(NaturalTrees.getInstance().getPluginSettings().existWorldGuard()) {
+						WorldGuardPlugin wg = (WorldGuardPlugin) Bukkit.getPluginManager().getPlugin("WorldGuard");
+						if(wg.getRegionManager(e.getBlock().getWorld()).getApplicableRegions(e.getBlock().getLocation()).size() > 0) {
+							if(!NaturalTrees.getInstance().getPluginSettings().isPlantingSaplingsInRegion()) {
+								return;
+							}
+						}
+					}
 					Bukkit.getScheduler().scheduleSyncDelayedTask(NaturalTrees.getInstance(), new Runnable() {
 						
 						@Override
@@ -45,10 +74,16 @@ public class NaturalTreesEventHandler implements Listener {
 							List<Material> growOn = new ArrayList<Material>(Arrays.asList(Material.DIRT, Material.GRASS));
 							if(growOn.contains(under.getType())) {
 								Block b = sapling.getLocation().getBlock();
+								
 								if((b.getType() == Material.LONG_GRASS) || (b.getType() == Material.AIR)) {
 									b.setType(Material.SAPLING);
 									b.setData((byte) lt.getID());
+									if(NaturalTrees.getInstance().getPluginSettings().growInstant()) {
+										b.setType(Material.AIR);
+										b.getWorld().generateTree(b.getLocation(), LeavesType.toTreeType(lt));
+									}
 									sapling.remove();
+									
 								}
 							}
 						}

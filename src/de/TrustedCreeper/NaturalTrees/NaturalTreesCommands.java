@@ -36,6 +36,8 @@ public class NaturalTreesCommands implements CommandExecutor {
 			if(args.length == 1) {
 				if(args[0].equalsIgnoreCase("reload")) {
 					if(sender.hasPermission("naturaltrees.reload")) {
+						NaturalTrees.getInstance().reloadConfig();
+						NaturalTrees.getInstance().loadPluginSettings();
 						sender.sendMessage(NaturalTrees.getInstance().getPluginSettings().getMessageConfigReload());
 					} else {
 						sender.sendMessage(NaturalTrees.getInstance().getPluginSettings().getMessageNoPermission());

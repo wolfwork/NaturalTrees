@@ -34,6 +34,10 @@ public class TreeManager {
 		return calculateProbability(NaturalTrees.getInstance().getPluginSettings().getDropRate());
 	}
 	
+	public static boolean canDropApple() {
+		return calculateProbability(NaturalTrees.getInstance().getPluginSettings().getAppleDropRate());
+	}
+	
 	public static boolean canGrow() {
 		return calculateProbability(NaturalTrees.getInstance().getPluginSettings().getGrowthRate());
 	}
@@ -43,7 +47,7 @@ public class TreeManager {
 		if(percentage < 0) percentage = 0;
 		if(percentage == 100) return true;
 		if(percentage == 0) return false;
-		if(getRandomInt(0, 100) < percentage) {
+		if(getRandomInt(0, 100) <= percentage) {
 			return true;
 		}
 		return false;

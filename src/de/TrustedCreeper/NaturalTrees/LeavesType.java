@@ -1,6 +1,7 @@
 package de.TrustedCreeper.NaturalTrees;
 
 import org.bukkit.Material;
+import org.bukkit.TreeType;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -21,6 +22,33 @@ public enum LeavesType {
 	
 	public ItemStack getSapling() {
 		return sapling;
+	}
+	
+	public static org.bukkit.TreeType toTreeType(LeavesType leaf) {
+		org.bukkit.TreeType tretyp = TreeType.TREE;
+	        switch(leaf.getID()){
+	        case 0:
+	            tretyp = TreeType.TREE;
+	        break;
+	        case 1:
+	            tretyp = TreeType.REDWOOD;
+	        break;
+	        case 2:
+	            tretyp = TreeType.BIRCH;
+	        break;
+	        case 3:
+	            tretyp = TreeType.JUNGLE;
+	        break;
+	        case 4:
+	            tretyp = TreeType.ACACIA;
+	        break;
+	        case 5:
+	            tretyp = TreeType.DARK_OAK;
+	        break;
+	        default:
+	            tretyp = TreeType.TREE;
+	        }
+	        return tretyp;
 	}
 	
 	public int getID() {

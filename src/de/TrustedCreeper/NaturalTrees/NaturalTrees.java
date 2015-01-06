@@ -2,6 +2,8 @@
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -41,10 +43,16 @@ public class NaturalTrees extends JavaPlugin {
 	File config = new File("plugins/NaturalTrees/config.yml");
 	public void loadConfig() {
 		getConfig().addDefault("config.droprate", 10);
+		getConfig().addDefault("config.apple_droprate", 3);
 		getConfig().addDefault("config.growthrate", 100);
+		getConfig().addDefault("config.grow_instant", false);
 		getConfig().addDefault("config.timetofirmlygrow", 10);
 		getConfig().addDefault("config.decay", true);
 		getConfig().addDefault("config.metrics", true);
+		
+		getConfig().addDefault("config.worldguard.disable_naturaltrees_in_regions", true);
+		getConfig().addDefault("config.worldguard.plant_sapling_in_regions", false);
+		getConfig().addDefault("config.disabled_worlds", new ArrayList<String>(Arrays.asList("example_world", "example_nether")));
 		
 		getConfig().addDefault("messages.no_permission", "&8[&2NaturalTrees&8] &cYou don't have permission!");
 		getConfig().addDefault("messages.config_reloaded", "&8[&2NaturalTrees&8] &2Reloaded configuration file!");
